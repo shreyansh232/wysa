@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import db from "../config/db";
 import { v4 as uuidv4 } from "uuid";
+import { generateRandomScore } from "../utils/helpers";
 
 export const createFlow = async (req: Request, res: Response) => {
   const { userId } = req.body;
@@ -96,6 +97,42 @@ export const update = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error updating sleep assessment", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const completeAssessment = async (req: Request, res: Response) => {
+  const { id } = req.body;
+
+  if (!id) {
+    res.status(400).json({ message: "Id is required" });
+    return;
+  }
+
+  // Generate a random score
+  const score = generateRandomScore();
+
+  try {
+    const result = await db.query(
+      `UPDATE "sleepAssessments"
+       SET "score" = $1, "status" = 'COMPLETED', "updatedAt" = NOW()
+       WHERE "id" = $2
+       RETURNING *`,
+      [score, id],
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "SleepAssessment not found" });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: "Assessment completed",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error completing assessment", error);
     res.status(500).json({ message: "Server error" });
   }
 };
