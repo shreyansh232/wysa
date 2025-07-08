@@ -37,7 +37,7 @@ model SleepAssessment {
   status AssessmentStatus @default(IN_PROGRESS)
 
   sleepStruggleDuration String?
-  bedtime               String?
+  bedTime               String?
   wakeTime              String?
   sleepHours            Int?
 
@@ -46,4 +46,5 @@ model SleepAssessment {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sleepAssessments") }
+  @@map("sleepAssessments") 
+  }

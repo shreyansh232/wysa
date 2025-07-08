@@ -36,11 +36,66 @@ export const createFlow = async (req: Request, res: Response) => {
 };
 
 export const update = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id, updateType } = req.body;
+
+  // Validate ID once at the top
   if (!id) {
-    res.status(401).json({ message: "Id is required" });
+    res.status(400).json({ message: "Id is required" });
+    return;
   }
+
+  let field: string | null = null;
+  let value: any = null;
+
+  switch (updateType) {
+    case "Sleep Struggle":
+      field = "sleepStruggleDuration";
+      value = req.body.sleepStruggleDuration;
+      break;
+
+    case "Bed Time":
+      field = "bedTime";
+      value = req.body.bedTime;
+      break;
+
+    case "Wake Time":
+      field = "wakeTime";
+      value = req.body.wakeTime;
+      break;
+
+    case "Sleep Hours":
+      field = "sleepHours";
+      value = req.body.sleepHours;
+      break;
+
+    default:
+      res.status(400).json({ message: "Invalid updateType" });
+      return;
+  }
+
+  if (value === undefined || value === null) {
+    res.status(400).json({ message: `Missing value for ${field}` });
+    return;
+  }
+
   try {
-    const result = await db.query(`UPDATE "sleepAssessments" SET `);
-  } catch (error) {}
+    const result = await db.query(
+      `UPDATE "sleepAssessments" SET "${field}" = $1, "updatedAt" = NOW() WHERE "id" = $2 RETURNING *`,
+      [value, id],
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "SleepAssessment not found" });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: "Sleep assessment updated",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating sleep assessment", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

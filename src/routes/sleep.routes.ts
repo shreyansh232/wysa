@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { createFlow } from "../controllers/sleep.controller";
+import { createFlow, update } from "../controllers/sleep.controller";
 
 const router = Router();
 
 router.post("/start", createFlow);
+router.patch("/update", update);
 
 export default router;
