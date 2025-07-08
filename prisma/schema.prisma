@@ -23,7 +23,7 @@ model User {
   // Relations
   sleepAssessments SleepAssessment[]
 
-  @@map("users") // keep this if the table name in DB is still 'users'
+  @@map("users") 
 }
 
 enum AssessmentStatus {
@@ -46,5 +46,4 @@ model SleepAssessment {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sleep_assessments") // keep this if your DB table name is still snake_case
-}
+  @@map("sleepAssessments") }
