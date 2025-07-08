@@ -45,7 +45,9 @@ export const signup: RequestHandler = async (req: Request, res: Response) => {
 
     // Create user
     const result = await db.query(
-      "INSERT INTO users (nickname, password) VALUES ($1, $2) RETURNING id, nickname, created_at",
+      `INSERT INTO users (nickname, password, "createdAt", "updatedAt")
+   VALUES ($1, $2, NOW(), NOW())
+   RETURNING id, nickname, "createdAt", "updatedAt"`,
       [nickname, hashedPassword],
     );
 
@@ -65,7 +67,7 @@ export const signup: RequestHandler = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         nickname: user.nickname,
-        createdAt: user.created_at,
+        createdAt: user.createdAt,
       },
       token,
     });
@@ -117,7 +119,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         nickname: user.nickname,
-        createdAt: user.created_at,
+        createdAt: user.createdAt,
       },
       token,
     });

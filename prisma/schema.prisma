@@ -14,16 +14,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   nickname  String   @unique
   password  String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   sleepAssessments SleepAssessment[]
 
-  @@map("users")
+  @@map("users") // keep this if the table name in DB is still 'users'
 }
 
 enum AssessmentStatus {
@@ -32,21 +32,19 @@ enum AssessmentStatus {
 }
 
 model SleepAssessment {
-  id     String           @id @default(cuid())
-  userId String           @map("user_id")
+  id     String           @id @default(uuid())
+  userId Int
   status AssessmentStatus @default(IN_PROGRESS)
 
-  // Assessment answers
-  sleepStruggleDuration String? @map("sleep_struggle_duration") // "less_than_2_weeks", "2_to_6_weeks", "more_than_6_weeks"
-  bedtime               String? // "1:50 am"
-  wakeTime              String? @map("wake_time") // "10:00 am"
-  sleepHours            Int?    @map("sleep_hours") // 6, 7, etc.
+  sleepStruggleDuration String?
+  bedtime               String?
+  wakeTime              String?
+  sleepHours            Int?
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sleep_assessments")
+  @@map("sleep_assessments") // keep this if your DB table name is still snake_case
 }
